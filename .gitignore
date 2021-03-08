@@ -1,3 +1,4 @@
 Debug
 *.o
 *.exe
+.vs
