@@ -5,35 +5,9 @@
 class Menu_contextuel_widget : public jgl::Widget
 {
 private:
+
 public:
 	Menu_contextuel_widget(jgl::Widget* p_parent = nullptr);
-	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
-	void render();
-};
-
-class Character_selecter_widget : public jgl::Widget
-{
-private:
-public:
-	Character_selecter_widget(jgl::Widget* p_parent = nullptr);
-	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
-	void render();
-};
-
-class Chat_widget : public jgl::Widget
-{
-private:
-public:
-	Chat_widget(jgl::Widget* p_parent = nullptr);
-	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
-	void render();
-};
-
-class Team_widget : public jgl::Widget
-{
-private:
-public:
-	Team_widget(jgl::Widget* p_parent = nullptr);
 	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
 	void render();
 };
@@ -41,17 +15,19 @@ public:
 class Account_widget : public jgl::Widget
 {
 private:
+
 public:
 	Account_widget(jgl::Widget* p_parent = nullptr);
 	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
 	void render();
 };
 
-class City_widget : public jgl::Widget
+class Chat_widget : public jgl::Widget
 {
 private:
+
 public:
-	City_widget(jgl::Widget* p_parent = nullptr);
+	Chat_widget(jgl::Widget* p_parent = nullptr);
 	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
 	void render();
 };
@@ -59,12 +35,13 @@ public:
 class Game_menu :public jgl::Widget
 {
 private:
-	City_widget* _city;
-	Account_widget* _account;
-	Team_widget* _team;
-	Chat_widget* _chat;
-	Character_selecter_widget* _character_selecter;
+	jgl::Frame* _background;
+	Account_widget* _account_widget;
+
 	Menu_contextuel_widget* _menu_contextuel;
+	jgl::Button* _one_v_one_button;
+	jgl::Button* _three_v_three_button;
+	jgl::Button* _five_v_five_button;
 
 public:
 	Game_menu(jgl::Widget *p_parent = nullptr);

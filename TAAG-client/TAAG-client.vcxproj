@@ -21,13 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\TAAG-common\srcs\common_basic_function.cpp" />
     <ClCompile Include="srcs\main_client.cpp" />
-    <ClCompile Include="srcs\taag_account_widget.cpp" />
-    <ClCompile Include="srcs\taag_character_selecter_widget.cpp" />
-    <ClCompile Include="srcs\taag_chat_widget.cpp" />
-    <ClCompile Include="srcs\taag_city_widget.cpp" />
     <ClCompile Include="srcs\taag_game_menu_widget.cpp" />
-    <ClCompile Include="srcs\taag_menu_contextuel_widget.cpp" />
-    <ClCompile Include="srcs\taag_team_widget.cpp" />
     <ClCompile Include="srcs\taag_title_screen_widget.cpp" />
     <ClCompile Include="srcs\taag_client_widget.cpp" />
   </ItemGroup>
@@ -95,11 +89,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Hywa\source\repos\TAAG\TAAG\TAAG-common\includes;C:\Users\Hywa\source\repos\TAAG\TAAG\TAAG-client\includes;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Hywa\source\repos\TAAG\TAAG-common\includes;C:\Users\Hywa\source\repos\TAAG\TAAG-client\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Hywa\source\repos\TAAG\TAAG\TAAG-common\includes;C:\Users\Hywa\source\repos\TAAG\TAAG\TAAG-client\includes;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Hywa\source\repos\TAAG\TAAG-common\includes;C:\Users\Hywa\source\repos\TAAG\TAAG-client\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>

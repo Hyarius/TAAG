@@ -84,11 +84,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Hywa\source\repos\TAAG\TAAG\TAAG-server\includes;C:\Users\Hywa\source\repos\TAAG\TAAG\TAAG-common\includes;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Hywa\source\repos\TAAG\TAAG-server\includes;C:\Users\Hywa\source\repos\TAAG\TAAG-common\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Hywa\source\repos\TAAG\TAAG\TAAG-server\includes;C:\Users\Hywa\source\repos\TAAG\TAAG\TAAG-common\includes;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Hywa\source\repos\TAAG\TAAG-server\includes;C:\Users\Hywa\source\repos\TAAG\TAAG-common\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>

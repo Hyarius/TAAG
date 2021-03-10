@@ -65,23 +65,5 @@
     <ClCompile Include="srcs\taag_game_menu_widget.cpp">
       <Filter>Source Files\Widget</Filter>
     </ClCompile>
-    <ClCompile Include="srcs\taag_city_widget.cpp">
-      <Filter>Source Files\Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="srcs\taag_account_widget.cpp">
-      <Filter>Source Files\Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="srcs\taag_team_widget.cpp">
-      <Filter>Source Files\Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="srcs\taag_chat_widget.cpp">
-      <Filter>Source Files\Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="srcs\taag_character_selecter_widget.cpp">
-      <Filter>Source Files\Widget</Filter>
-    </ClCompile>
-    <ClCompile Include="srcs\taag_menu_contextuel_widget.cpp">
-      <Filter>Source Files\Widget</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

@@ -16,7 +16,5 @@ int main(int argc, char** argv)
 	g_title_screen->set_geometry(0, app.size());
 	g_title_screen->activate();
 
-
-
 	return (app.run());
 }
