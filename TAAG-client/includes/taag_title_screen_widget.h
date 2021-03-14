@@ -4,6 +4,8 @@
 class Title_screen : public jgl::Widget
 {
 private:
+	class Game_engine* _engine;
+
 	jgl::Sprite_sheet* _title_image;
 
 	jgl::Text_label* _username_label;
@@ -25,12 +27,10 @@ private:
 	int _client_error_text_size;
 
 public:
-	Title_screen(jgl::Widget* p_parent = nullptr);
+	Title_screen(class Game_engine* p_engine, jgl::Widget* p_parent = nullptr);
 	void set_client_error_message(jgl::String text);
 	void connect();
 	void signup();
 	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
 	void render();
 };
-
-extern Title_screen* g_title_screen;

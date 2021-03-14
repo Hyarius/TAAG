@@ -51,3 +51,18 @@ bool check_password_validity(jgl::String password, jgl::String& error)
 	error = "";
 	return (true);
 }
+
+void add_account_to_message(jgl::Message<Server_message>& msg, Account* p_account)
+{
+	msg << p_account->icon;
+	msg.add_string(p_account->username);
+}
+
+Account* get_account_from_message(jgl::Message<Server_message>& msg)
+{
+	Account* new_account = new Account("", "");
+	new_account->username = msg.get_string();
+	msg >> new_account->icon;
+
+	return (new_account);
+}

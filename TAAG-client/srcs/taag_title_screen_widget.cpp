@@ -16,8 +16,10 @@ void signup_account(jgl::Data param)
 	title_screen->signup();
 }
 
-Title_screen::Title_screen(jgl::Widget* p_parent) : jgl::Widget(p_parent)
+Title_screen::Title_screen(Game_engine* p_engine, jgl::Widget* p_parent) : jgl::Widget(p_parent)
 {
+	_engine = p_engine;
+
 	_title_image = new jgl::Sprite_sheet("ressources/texture/titlescreen.png", jgl::Vector2(8, 1));
 
 	// USERNAME WIDGETS
@@ -126,12 +128,12 @@ void Title_screen::connect()
 
 	if (password_validity == true && username_validity == true)
 	{
-		jgl::Message<Server_message> msg(Server_message::Client_account_data);
+		jgl::Message<Server_message> msg(Server_message::Client_ask_sign_in);
 
 		msg.add_string(password);
 		msg.add_string(username);
 
-		g_client->send(msg);
+		_engine->send(msg);
 	}
 }
 
@@ -166,7 +168,7 @@ void Title_screen::signup()
 		msg.add_string(password);
 		msg.add_string(username);
 
-		g_client->send(msg);
+		_engine->send(msg);
 	}
 }
 

@@ -25,6 +25,9 @@
     <Filter Include="Header Files\Widget">
       <UniqueIdentifier>{ba670aba-e5b7-44e9-8db3-2f761558cef9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Widget\game_menu">
+      <UniqueIdentifier>{aa9eb921-0ddf-423a-95c8-2b3211e09ce9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\taag_client.h">
@@ -48,6 +51,9 @@
     <ClInclude Include="includes\taag_game_menu_widget.h">
       <Filter>Header Files\Widget</Filter>
     </ClInclude>
+    <ClInclude Include="includes\taag_game_engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="srcs\main_client.cpp">
@@ -64,6 +70,24 @@
     </ClCompile>
     <ClCompile Include="srcs\taag_game_menu_widget.cpp">
       <Filter>Source Files\Widget</Filter>
+    </ClCompile>
+    <ClCompile Include="srcs\taag_account_widget.cpp">
+      <Filter>Source Files\Widget\game_menu</Filter>
+    </ClCompile>
+    <ClCompile Include="srcs\taag_chat_widget.cpp">
+      <Filter>Source Files\Widget\game_menu</Filter>
+    </ClCompile>
+    <ClCompile Include="srcs\taag_friend_list_widget.cpp">
+      <Filter>Source Files\Widget\game_menu</Filter>
+    </ClCompile>
+    <ClCompile Include="srcs\taag_game_launcher_widget.cpp">
+      <Filter>Source Files\Widget\game_menu</Filter>
+    </ClCompile>
+    <ClCompile Include="srcs\taag_menu_contextuel_widget.cpp">
+      <Filter>Source Files\Widget\game_menu</Filter>
+    </ClCompile>
+    <ClCompile Include="srcs\taag_game_engine.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

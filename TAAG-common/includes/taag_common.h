@@ -16,3 +16,6 @@ bool check_username_validity(jgl::String username, jgl::String& error);
 bool check_password_validity(jgl::String password, jgl::String& error);
 
 #include "taag_common_account_data.h"
+
+void add_account_to_message(jgl::Message<Server_message>& msg, Account* p_account);
+Account* get_account_from_message(jgl::Message<Server_message>& msg);

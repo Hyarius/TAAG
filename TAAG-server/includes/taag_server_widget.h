@@ -9,6 +9,8 @@ private:
 	bool _quit;
 	jgl::Array<jgl::Connexion<Server_message>*> _connected_client;
 
+	std::map<int64_t, Account*> _client_to_account_map;
+
 	std::map<jgl::String, Account*> _account_map;
 
 public:

@@ -1,7 +1,8 @@
 #include "taag_client.h"
 
-Client::Client(jgl::Widget* p_parent) : jgl::Widget(p_parent), jgl::Client_interface<Server_message>()
+Client::Client(Game_engine* p_engine, jgl::Widget* p_parent) : jgl::Widget(p_parent), jgl::Client_interface<Server_message>()
 {
+	_engine = p_engine;
 	connect(SERVER_HOST, SERVER_PORT);
 	_connected_to_server = false;
 }
@@ -76,7 +77,7 @@ void Client::update()
 
 			text = msg.get_string();
 			LOG_MESSAGE("Server send msg : " + text);
-			g_title_screen->set_client_error_message(text);
+			_engine->set_client_error_message(text);
 		}
 		break;
 		case Server_message::Server_refuse_sign_up:
@@ -86,14 +87,17 @@ void Client::update()
 
 			text = msg.get_string();
 			LOG_MESSAGE("Server send msg : " + text);
-			g_title_screen->set_client_error_message(text);
+			_engine->set_client_error_message(text);
 		}
 		break;
 		case Server_message::Server_accept_login:
 		{
 			LOG_MESSAGE("Server accepted login");
-
-			g_title_screen->set_client_error_message("");
+			Account* new_account = get_account_from_message(msg);
+			LOG_MESSAGE("Server send account " + new_account->username + " with icon " + new_account->icon.str());
+			_engine->set_client_error_message("");
+			_engine->set_account(new_account);
+			_engine->connect();
 		}
 		break;
 		case Server_message::Server_refuse_login:
@@ -103,7 +107,15 @@ void Client::update()
 
 			text = msg.get_string();
 			LOG_MESSAGE("Server send msg : " + text);
-			g_title_screen->set_client_error_message(text);
+			_engine->set_client_error_message(text);
+		}
+		break;
+		case Server_message::Chat_message:
+		{
+			jgl::String text;
+
+			text = msg.get_string();
+			_engine->add_chat_line(text);
 		}
 		break;
 		default:

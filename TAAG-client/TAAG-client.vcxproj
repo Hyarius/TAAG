@@ -21,7 +21,13 @@
   <ItemGroup>
     <ClCompile Include="..\TAAG-common\srcs\common_basic_function.cpp" />
     <ClCompile Include="srcs\main_client.cpp" />
+    <ClCompile Include="srcs\taag_account_widget.cpp" />
+    <ClCompile Include="srcs\taag_chat_widget.cpp" />
+    <ClCompile Include="srcs\taag_friend_list_widget.cpp" />
+    <ClCompile Include="srcs\taag_game_engine.cpp" />
+    <ClCompile Include="srcs\taag_game_launcher_widget.cpp" />
     <ClCompile Include="srcs\taag_game_menu_widget.cpp" />
+    <ClCompile Include="srcs\taag_menu_contextuel_widget.cpp" />
     <ClCompile Include="srcs\taag_title_screen_widget.cpp" />
     <ClCompile Include="srcs\taag_client_widget.cpp" />
   </ItemGroup>
@@ -31,6 +37,7 @@
     <ClInclude Include="..\TAAG-common\includes\taag_common_messaging.h" />
     <ClInclude Include="includes\taag_client.h" />
     <ClInclude Include="includes\taag_client_widget.h" />
+    <ClInclude Include="includes\taag_game_engine.h" />
     <ClInclude Include="includes\taag_game_menu_widget.h" />
     <ClInclude Include="includes\taag_title_screen_widget.h" />
   </ItemGroup>

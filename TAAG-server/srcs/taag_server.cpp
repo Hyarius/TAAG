@@ -26,7 +26,8 @@ bool Server::client_connect(jgl::Connexion<Server_message>* client)
 
 void Server::client_disconnect(jgl::Connexion<Server_message>* client)
 {
-	//LOG_MESSAGE("Starting disconnection");
+	LOG_MESSAGE("Starting disconnection");
+	_client_to_account_map[client->id()] = nullptr;
 }
 
 bool Server::find_connected_client(jgl::Connexion<Server_message>* client)
@@ -51,7 +52,6 @@ bool Server::find_account_in_map(jgl::String username)
 
 void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::Message<Server_message>& msg)
 {
-	LOG_MESSAGE("Message reception");
 	if (msg.type() != Server_message::Client_awnser_magic_number)
 	{
 		if (find_connected_client(client) == false)
@@ -91,7 +91,7 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 		client->send(msg);
 	}
 	break;
-	case Server_message::Client_account_data:
+	case Server_message::Client_ask_sign_in:
 	{
 		jgl::Message<Server_message> result(Server_message::Server_error_message);
 		LOG_MESSAGE("Account data received");
@@ -118,6 +118,8 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 			{
 				LOG_MESSAGE("Can login " + username);
 				result.header.id = Server_message::Server_accept_login;
+				add_account_to_message(result, tmp_account);
+				_client_to_account_map[client->id()] = tmp_account;
 			}
 			else
 			{
@@ -158,6 +160,26 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 			result.add_string("Account successfully created");
 		}
 		client->send(result);
+	}
+	break;
+	case Server_message::Send_chat_message:
+	{
+		if (_client_to_account_map[client->id()] != nullptr)
+		{
+			jgl::String username = _client_to_account_map[client->id()]->username;
+
+			jgl::String tmp = msg.get_string();
+
+			jgl::String result = "[" + username + "] : " + tmp;
+
+			jgl::Message<Server_message> to_send(Server_message::Chat_message);
+
+			to_send.add_string(result);
+
+			LOG_MESSAGE("Player " + username + " : " + tmp);
+
+			message_all(to_send, nullptr);
+		}
 	}
 	break;
 	default:
@@ -210,9 +232,10 @@ void Server::load()
 			{
 				tab.clear();
 				strsplit(tab, line, ";");
-				if (tab.size() == 2)
+				if (tab.size() == 4)
 				{
 					Account* new_account = new Account(tab[0].copy(), tab[1].copy());
+					new_account->icon = jgl::Vector2(jgl::stoi(tab[2]), jgl::stoi(tab[3]));
 					_account_map[new_account->username] = new_account;
 					LOG_MESSAGE("Adding account [" + new_account->username + "]/[" + new_account->password + "] to loaded account");
 				}
