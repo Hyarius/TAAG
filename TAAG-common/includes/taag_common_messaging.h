@@ -14,5 +14,9 @@ enum class Server_message
 	Server_accept_login = 8,
 	Server_refuse_login = 9,
 	Send_chat_message = 10,
-	Chat_message = 11
+	Chat_message = 11,
+	Friend_list_content = 12,
+	Add_friend_to_list = 13,
+	Remove_friend_from_list = 14,
+	Change_friend_state = 15
 };

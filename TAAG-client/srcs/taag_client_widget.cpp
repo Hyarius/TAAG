@@ -98,6 +98,10 @@ void Client::update()
 			_engine->set_client_error_message("");
 			_engine->set_account(new_account);
 			_engine->connect();
+
+			jgl::Message<Server_message> result(Server_message::Friend_list_content);
+
+			send(result);
 		}
 		break;
 		case Server_message::Server_refuse_login:
@@ -116,6 +120,26 @@ void Client::update()
 
 			text = msg.get_string();
 			_engine->add_chat_line(text);
+		}
+		break;
+		case Server_message::Friend_list_content:
+		{
+			_engine->parse_friend_list(msg);
+		}
+		break;
+		case Server_message::Add_friend_to_list:
+		{
+			_engine->add_friend_to_list(msg);
+		}
+		break;
+		case Server_message::Remove_friend_from_list:
+		{
+			_engine->remove_friend_from_list(msg);
+		}
+		break;
+		case Server_message::Change_friend_state:
+		{
+			_engine->change_friend_state(msg);
 		}
 		break;
 		default:

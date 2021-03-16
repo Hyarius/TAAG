@@ -2,7 +2,7 @@
 
 #include "jgl.h"
 
-#define SERVER_HOST "5.135.165.111"
+#define SERVER_HOST "127.1.0.1"
 #define SERVER_PORT 37500
 
 class Client : public jgl::Widget, public jgl::Client_interface<Server_message>

@@ -41,12 +41,45 @@ class Friend_list_widget: public jgl::Widget
 private:
 	class Game_engine* _engine;
 
+	struct Friend
+	{
+		jgl::String name;
+		jgl::Vector2 sprite;
+		bool connected;
+
+		int text_size;
+
+		Friend(jgl::String p_name = "", jgl::Vector2 p_sprite = 0, bool p_connected = false)
+		{
+			name = p_name;
+			sprite = p_sprite;
+			connected = p_connected;
+			text_size = -1;
+		}
+	};
+
+	Friend* find_friend(jgl::String name);
+
+	jgl::Array<Friend *> _friend_list;
+
+	jgl::Button* _add_friend_button;
+	jgl::Button* _remove_friend_button;
+
 	jgl::w_box_component _box;
+	jgl::Vector2 _friend_box_size;
+	int _nb_friend_on_screen;
+	int _friend_text_size;
 
 public:
 	Friend_list_widget(class Game_engine *p_engine, jgl::Widget* p_parent = nullptr);
+
+	void parse_friend_list(jgl::Message<Server_message>&msg);
+	void change_friend_state(jgl::Message<Server_message>& msg);
+	void add_friend_to_list(jgl::Message<Server_message>& msg);
+	void remove_friend_from_list(jgl::Message<Server_message>& msg);
 	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
 	void render();
+	void draw_friend_box(Friend* target, int i);
 };
 
 class Chat_widget : public jgl::Widget
@@ -125,6 +158,12 @@ private:
 
 public:
 	Game_menu(class Game_engine* p_engine, jgl::Widget *p_parent = nullptr);
+
+	void parse_friend_list(jgl::Message<Server_message>& msg) { _friend_list_widget->parse_friend_list(msg); }
+	void add_friend_to_list(jgl::Message<Server_message>& msg) { _friend_list_widget->add_friend_to_list(msg); }
+	void remove_friend_from_list(jgl::Message<Server_message>& msg) { _friend_list_widget->remove_friend_from_list(msg); }
+	void change_friend_state(jgl::Message<Server_message>& msg) { _friend_list_widget->change_friend_state(msg); }
+
 	void add_chat_line(jgl::String text) { _chat_widget->add_line(text); }
 	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
 	void render();

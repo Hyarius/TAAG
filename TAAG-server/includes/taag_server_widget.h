@@ -20,8 +20,11 @@ public:
 	void save();
 	void load();
 
+	void send_friend_list(jgl::Connexion<Server_message>* client);
+
 	bool find_account_in_map(jgl::String username);
 	bool find_connected_client(jgl::Connexion<Server_message>* client);
+
 	void quit();
 	void run();
 

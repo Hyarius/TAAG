@@ -18,6 +18,18 @@ Game_engine::Game_engine()
 	Account::set_icon_sprite(new jgl::Sprite_sheet("ressources/texture/account_icon.png", 10));
 }
 
+Game_engine::~Game_engine()
+{
+	if (_account != nullptr)
+		delete _account;
+	if (_client != nullptr)
+		delete _client;
+	if (_title_screen != nullptr)
+		delete _title_screen;
+	if (_game_menu != nullptr)
+		delete _game_menu;
+}
+
 void Game_engine::send_chat_message(jgl::String message)
 {
 	jgl::Message<Server_message> msg(Server_message::Send_chat_message);
