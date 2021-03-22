@@ -34,6 +34,7 @@ void Server::client_disconnect(jgl::Connexion<Server_message>* client)
 	LOG_MESSAGE("Starting disconnection");
 	if (_client_to_account_map[client->id()] != nullptr)
 	{
+		disconnect_account(client, _client_to_account_map[client->id()]);
 		_client_to_account_map[client->id()]->client = nullptr;
 		_client_to_account_map[client->id()] = nullptr;
 	}
@@ -59,11 +60,43 @@ bool Server::find_account_in_map(jgl::String username)
 		return (false);
 }
 
+void Server::connect_account(jgl::Connexion<Server_message>* client, Account* account)
+{
+	_client_to_account_map[client->id()] = account;
+	account->client = client;
+
+	jgl::Message<Server_message> msg(Server_message::Change_friend_state);
+	msg << true;
+	msg.add_string(account->username);
+
+	for (size_t i = 0; i < account->friend_list.size(); i++)
+	{
+		Account* target = _account_map[account->friend_list[i]];
+		if (target != nullptr && target->client != nullptr)
+			target->client->send(msg);
+	}
+}
+
+void Server::disconnect_account(jgl::Connexion<Server_message>* client, Account* account)
+{
+	jgl::Message<Server_message> msg(Server_message::Change_friend_state);
+	msg << false;
+	msg.add_string(account->username);
+
+	for (size_t i = 0; i < account->friend_list.size(); i++)
+	{
+		Account* target = _account_map[account->friend_list[i]];
+		if (target != nullptr && target->client != nullptr)
+			target->client->send(msg);
+	}
+
+	account->client = nullptr;
+}
+
+
 void Server::send_friend_list(jgl::Connexion<Server_message>* client)
 {
 	Account* account = _client_to_account_map[client->id()];
-
-	std::cout << "Account : " << account->username << std::endl;
 
 	jgl::Message<Server_message> to_send(Server_message::Friend_list_content);
 
@@ -71,6 +104,10 @@ void Server::send_friend_list(jgl::Connexion<Server_message>* client)
 	{
 		Account* target = _account_map[account->friend_list[i]];
 
+		if (target->client == nullptr)
+			to_send << false;
+		else
+			to_send << true;
 		to_send << target->icon;
 		to_send.add_string(target->username);
 	}
@@ -78,8 +115,33 @@ void Server::send_friend_list(jgl::Connexion<Server_message>* client)
 	client->send(to_send);
 }
 
+void Server::send_room_information(Game_room* room)
+{
+	jgl::Message<Server_message> result(Server_message::Game_room_information);
+
+	for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
+	{
+		if (room->players[i] != nullptr)
+		{
+			result.add_string(room->players[i]->username);
+
+			result << room->players[i]->icon;
+		}
+	}
+
+	for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
+	{
+		if (room->players[i] != nullptr)
+		{
+			room->players[i]->client->send(result);
+		}
+	}
+}
+
 void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::Message<Server_message>& msg)
 {
+	Account* account = _client_to_account_map[client->id()];
+
 	if (msg.type() != Server_message::Client_awnser_magic_number)
 	{
 		if (find_connected_client(client) == false)
@@ -145,10 +207,9 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 				if (tmp_account->password == password)
 				{
 					LOG_MESSAGE("Can login " + username);
+					connect_account(client, tmp_account);
 					result.header.id = Server_message::Server_accept_login;
 					add_account_to_message(result, tmp_account);
-					_client_to_account_map[client->id()] = tmp_account;
-					tmp_account->client = client;
 				}
 				else
 				{
@@ -193,9 +254,9 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 		break;
 		case Server_message::Send_chat_message:
 		{
-			if (_client_to_account_map[client->id()] != nullptr)
+			if (account != nullptr)
 			{
-				jgl::String username = _client_to_account_map[client->id()]->username;
+				jgl::String username = account->username;
 
 				jgl::String tmp = msg.get_string();
 
@@ -219,23 +280,73 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 		break;
 		case Server_message::Add_friend_to_list:
 		{
-			Account* account = _client_to_account_map[client->id()];
-
 			jgl::String name = msg.get_string();
 
 			Account* other = _account_map[name];
 
-			account->friend_list.push_back(name);
-			other->friend_list.push_back(account->username);
+			if (other != nullptr && account->friend_list.find(name) == account->friend_list.end())
+			{
+				account->friend_list.push_back(name);
 
-			send_friend_list(client);
-			if (other->client != nullptr)
-				send_friend_list(other->client);
+				send_friend_list(client);
+			}
 		}
 		break;
 		case Server_message::Remove_friend_from_list:
 		{
+			jgl::String name = msg.get_string();
 
+			Account* other = _account_map[name];
+
+			if (other != nullptr && account->friend_list.find(name) != account->friend_list.end())
+			{
+				account->friend_list.erase(account->friend_list.find(name));
+
+				send_friend_list(client);
+			}
+		}
+		break;
+		case Server_message::Create_new_room:
+		{			
+			LOG_MESSAGE("Creating room case");
+
+			Game_room *new_room = new Game_room();
+			_room_array.push_back(new_room);
+
+			account->room = new_room;
+			new_room->add_player(account);
+
+			send_room_information(new_room);
+		}
+		break;
+		case Server_message::Join_room:
+		{
+			LOG_MESSAGE("Joining room case");
+
+			jgl::String other = msg.get_string();
+
+			Account* master = _account_map[other];
+
+			if (master != nullptr && master->room != nullptr)
+			{
+				master->room->add_player(account);
+
+				send_room_information(master->room);
+			}
+		}
+		break;
+		case Server_message::Leave_room:
+		{
+			LOG_MESSAGE("Leaving room case");
+
+			if (account->room != nullptr)
+			{
+				Game_room* room = account->room;
+
+				room->remove_player(account);
+
+				send_room_information(room);
+			}
 		}
 		break;
 		default:

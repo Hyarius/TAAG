@@ -24,6 +24,17 @@ public:
 
 	void send_chat_message(jgl::String message);
 	void add_chat_line(jgl::String text) { _game_menu->add_chat_line(text); }
+	
+	void menu_contextuel_game() { _game_menu->menu_contextuel_game(); }
+	void create_new_room();
+	void join_room(jgl::String name);
+	void leave_room();
+
+	void close_add_friend_popup() {_game_menu->close_add_friend_popup();}
+	void popup_add_friend_to_list() { _game_menu->popup_add_friend_to_list(); }
+
+	void send_delete_friend(jgl::String name);
+	void send_new_friend(jgl::String name);
 
 	void parse_friend_list(jgl::Message<Server_message>& msg) { _game_menu->parse_friend_list(msg); }
 	void add_friend_to_list(jgl::Message<Server_message>& msg) { _game_menu->add_friend_to_list(msg); }

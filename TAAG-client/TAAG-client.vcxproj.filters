@@ -89,5 +89,8 @@
     <ClCompile Include="srcs\taag_game_engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="srcs\taag_adding_friend_menu.cpp">
+      <Filter>Source Files\Widget\game_menu</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

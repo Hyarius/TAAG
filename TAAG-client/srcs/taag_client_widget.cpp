@@ -142,6 +142,22 @@ void Client::update()
 			_engine->change_friend_state(msg);
 		}
 		break;
+		case Server_message::Game_room_information:
+		{
+			int i = 0;
+			while (msg.empty() == false)
+			{
+				jgl::String name;
+				jgl::Vector2 sprite;
+
+				msg >> sprite;
+				name = msg.get_string();
+
+				std::cout << "Player " << i << " is " << name << " and had sprite : " << sprite << std::endl;
+					i++;
+			}
+		}
+		break;
 		default:
 		{
 			std::cout << "Error : Bad message receive of type " << static_cast<int>(msg.type()) << std::endl;

@@ -13,6 +13,8 @@ private:
 
 	std::map<jgl::String, Account*> _account_map;
 
+	jgl::Array<Game_room *> _room_array;
+
 public:
 	Server();
 	~Server();
@@ -20,7 +22,11 @@ public:
 	void save();
 	void load();
 
+	void send_room_information(Game_room* room);
 	void send_friend_list(jgl::Connexion<Server_message>* client);
+
+	void connect_account(jgl::Connexion<Server_message>* client, Account* account);
+	void disconnect_account(jgl::Connexion<Server_message>* client, Account* account);
 
 	bool find_account_in_map(jgl::String username);
 	bool find_connected_client(jgl::Connexion<Server_message>* client);

@@ -30,11 +30,51 @@ Game_engine::~Game_engine()
 		delete _game_menu;
 }
 
+void Game_engine::create_new_room()
+{
+	LOG_MESSAGE("Asking for the creation of a new room");
+	jgl::Message<Server_message> msg(Server_message::Create_new_room);
+	_client->send(msg);
+}
+
+void Game_engine::join_room(jgl::String name)
+{
+	LOG_MESSAGE("Joining existing room");
+	jgl::Message<Server_message> msg(Server_message::Join_room);
+	msg.add_string(name);
+	_client->send(msg);
+}
+
+void Game_engine::leave_room()
+{
+	LOG_MESSAGE("Leaving actual room");
+	jgl::Message<Server_message> msg(Server_message::Leave_room);
+	_client->send(msg);
+}
+
 void Game_engine::send_chat_message(jgl::String message)
 {
 	jgl::Message<Server_message> msg(Server_message::Send_chat_message);
 
 	msg.add_string(message);
+
+	_client->send(msg);
+}
+
+void Game_engine::send_delete_friend(jgl::String name)
+{
+	jgl::Message<Server_message> msg(Server_message::Remove_friend_from_list);
+
+	msg.add_string(name);
+
+	_client->send(msg);
+}
+
+void Game_engine::send_new_friend(jgl::String name)
+{
+	jgl::Message<Server_message> msg(Server_message::Add_friend_to_list);
+
+	msg.add_string(name);
 
 	_client->send(msg);
 }

@@ -18,5 +18,9 @@ enum class Server_message
 	Friend_list_content = 12,
 	Add_friend_to_list = 13,
 	Remove_friend_from_list = 14,
-	Change_friend_state = 15
+	Change_friend_state = 15,
+	Create_new_room = 16, 
+	Join_room = 17,
+	Leave_room = 18,
+	Game_room_information = 19
 };

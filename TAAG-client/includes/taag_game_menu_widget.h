@@ -9,8 +9,25 @@ private:
 
 	jgl::w_box_component _box;
 
+	jgl::Contener* _game_room;
+
+	jgl::Contener* _active_menu;
+
 public:
 	Menu_contextuel_widget(class Game_engine *p_engine, jgl::Widget* p_parent = nullptr);
+
+	void active_game_menu()
+	{
+		LOG_MESSAGE("Activing game menu");
+		if (_active_menu != nullptr)
+			_active_menu->desactivate();
+
+		_game_room->activate();
+		_active_menu = _game_room;
+	}
+
+	void create_new_room();
+
 	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
 	void render();
 };
@@ -58,6 +75,8 @@ private:
 		}
 	};
 
+	jgl::Sprite_sheet* _friend_box_sheet;
+
 	Friend* find_friend(jgl::String name);
 
 	jgl::Array<Friend *> _friend_list;
@@ -65,10 +84,20 @@ private:
 	jgl::Button* _add_friend_button;
 	jgl::Button* _remove_friend_button;
 
+	int _index;
+	int _text_size;
 	jgl::w_box_component _box;
+	jgl::Vector2 _icon_size;
+	jgl::Vector2 _delta;
 	jgl::Vector2 _friend_box_size;
 	int _nb_friend_on_screen;
 	int _friend_text_size;
+
+	jgl::Array<jgl::w_box_component> _friend_box_array;
+	jgl::Array<jgl::w_text_component> _friend_text_array;
+	jgl::Array<jgl::Button*> _friend_delete_button_array;
+
+	void _set_friend_name_in_box();
 
 public:
 	Friend_list_widget(class Game_engine *p_engine, jgl::Widget* p_parent = nullptr);
@@ -78,8 +107,10 @@ public:
 	void add_friend_to_list(jgl::Message<Server_message>& msg);
 	void remove_friend_from_list(jgl::Message<Server_message>& msg);
 	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
+
+	bool handle_mouse();
+
 	void render();
-	void draw_friend_box(Friend* target, int i);
 };
 
 class Chat_widget : public jgl::Widget
@@ -137,9 +168,27 @@ private:
 	class Game_engine* _engine;
 
 	jgl::w_box_component _box;
+	jgl::w_text_component _label;
 
 public:
 	Game_launcher_widget(class Game_engine *p_engine, jgl::Widget* p_parent = nullptr);
+	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
+	void render();
+};
+
+class Adding_friend_menu : public jgl::Widget
+{
+private:
+	class Game_engine* _engine;
+
+	jgl::Frame* _adding_friend_menu_frame;
+	jgl::Text_label* _adding_friend_menu_label;
+	jgl::Text_entry* _adding_friend_menu_entry;
+	jgl::Button* _adding_friend_menu_validate_button;
+	jgl::Button* _adding_friend_menu_cancel_button;
+
+public:
+	Adding_friend_menu(class Game_engine* p_engine, jgl::Widget* p_parent = nullptr);
 	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
 	void render();
 };
@@ -154,11 +203,16 @@ private:
 	Account_widget* _account_widget;
 	Friend_list_widget* _friend_list_widget;
 	Chat_widget* _chat_widget;
-	Game_launcher_widget* _game_launcher_widget;
+	jgl::Button* _game_launcher_button;
+
+	Adding_friend_menu* _adding_friend_menu;
 
 public:
 	Game_menu(class Game_engine* p_engine, jgl::Widget *p_parent = nullptr);
 
+	void close_add_friend_popup();
+	void popup_add_friend_to_list();
+	void menu_contextuel_game() { _contextual_menu->active_game_menu(); }
 	void parse_friend_list(jgl::Message<Server_message>& msg) { _friend_list_widget->parse_friend_list(msg); }
 	void add_friend_to_list(jgl::Message<Server_message>& msg) { _friend_list_widget->add_friend_to_list(msg); }
 	void remove_friend_from_list(jgl::Message<Server_message>& msg) { _friend_list_widget->remove_friend_from_list(msg); }

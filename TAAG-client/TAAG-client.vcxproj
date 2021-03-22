@@ -22,6 +22,7 @@
     <ClCompile Include="..\TAAG-common\srcs\common_basic_function.cpp" />
     <ClCompile Include="srcs\main_client.cpp" />
     <ClCompile Include="srcs\taag_account_widget.cpp" />
+    <ClCompile Include="srcs\taag_adding_friend_menu.cpp" />
     <ClCompile Include="srcs\taag_chat_widget.cpp" />
     <ClCompile Include="srcs\taag_friend_list_widget.cpp" />
     <ClCompile Include="srcs\taag_game_engine.cpp" />

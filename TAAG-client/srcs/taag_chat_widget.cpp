@@ -145,12 +145,12 @@ bool Chat_widget::handle_mouse()
 		if (_entry.is_pointed(g_mouse->pos) == true)
 		{
 			_entry.set_selected(true);
-			return (true);
+			return (false);
 		}
 		else
 		{
 			_entry.set_selected(false);
-			return (true);
+			return (false);
 		}
 	}
 	if (_lines.size() != 0 && g_mouse->wheel != 0 && is_pointed(g_mouse->pos) == true)
@@ -168,6 +168,7 @@ bool Chat_widget::handle_mouse()
 			_starting_line = 0;
 		else if (_starting_line > tmp)
 			_starting_line = tmp;
+		return (true);
 	}
 	
 	return (false);
