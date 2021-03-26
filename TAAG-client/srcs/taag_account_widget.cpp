@@ -28,7 +28,7 @@ void Account_widget::calc_account_data_position(jgl::Vector2 p_area)
 	_icon_pos = _border + _box.border();
 	_icon_size = (p_area.y - _box.border() * 2) - _border * 2;
 	_text_pos = (p_area - _box.border() * 2 - (_border * 2) - jgl::Vector2(_icon_size.x, 0.0f)) / 2 + jgl::Vector2(_icon_size.x, 0.0f) + _box.border();
-	_text_size = ((p_area.y - _box.border() * 2) - _border * 3) / 2;
+	_text_size = static_cast<uint32_t>(((p_area.y - _box.border() * 2) - _border * 3) / 2);
 	_prev_username = _engine->account()->username;
 }
 

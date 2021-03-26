@@ -16,16 +16,21 @@ private:
 	Title_screen* _title_screen;
 	Game_menu* _game_menu;
 
+	jgl::Sprite_sheet* _account_box_sheet[4];
+
 public:
 	Game_engine();
 	~Game_engine();
 
+	jgl::Sprite_sheet* account_box_sheet(size_t index) { if (index >= 4)return (nullptr); return (_account_box_sheet[index]); };
 	Account* account() { return (_account); }
 
 	void send_chat_message(jgl::String message);
 	void add_chat_line(jgl::String text) { _game_menu->add_chat_line(text); }
 	
-	void menu_contextuel_game() { _game_menu->menu_contextuel_game(); }
+	void active_menu_contextuel_room() { _game_menu->active_menu_contextuel_room(); }
+	void update_room_menu() { _game_menu->update_room_menu(); }
+	
 	void create_new_room();
 	void join_room(jgl::String name);
 	void leave_room();

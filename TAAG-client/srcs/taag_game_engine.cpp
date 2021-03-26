@@ -16,6 +16,11 @@ Game_engine::Game_engine()
 	_game_menu->set_geometry(0, g_application->size());
 
 	Account::set_icon_sprite(new jgl::Sprite_sheet("ressources/texture/account_icon.png", 10));
+
+	_account_box_sheet[0] = new jgl::Sprite_sheet("ressources/texture/friend_list_background_disconnected.png", jgl::Vector2(6, 3));
+	_account_box_sheet[1] = new jgl::Sprite_sheet("ressources/texture/friend_list_background_connected.png", jgl::Vector2(6, 3));
+	_account_box_sheet[2] = new jgl::Sprite_sheet("ressources/texture/friend_list_background_in_room.png", jgl::Vector2(6, 3));
+	_account_box_sheet[3] = new jgl::Sprite_sheet("ressources/texture/friend_list_background_in_game.png", jgl::Vector2(6, 3));
 }
 
 Game_engine::~Game_engine()
@@ -39,7 +44,7 @@ void Game_engine::create_new_room()
 
 void Game_engine::join_room(jgl::String name)
 {
-	LOG_MESSAGE("Joining existing room");
+	LOG_MESSAGE("Joining existing room of player " + name);
 	jgl::Message<Server_message> msg(Server_message::Join_room);
 	msg.add_string(name);
 	_client->send(msg);

@@ -10,13 +10,20 @@ private:
 	jgl::w_box_component _box;
 
 	jgl::Contener* _game_room;
+	int _room_text_size;
+	jgl::Vector2 _icon_size;
+	jgl::Vector2 _friend_box_size;
+	jgl::Vector2 _friend_text_size;
+	jgl::Array<jgl::w_box_component> _friend_box_array;
+	jgl::Array<jgl::w_text_component> _friend_text_array;
+	
 
 	jgl::Contener* _active_menu;
 
 public:
 	Menu_contextuel_widget(class Game_engine *p_engine, jgl::Widget* p_parent = nullptr);
 
-	void active_game_menu()
+	void active_menu_room()
 	{
 		LOG_MESSAGE("Activing game menu");
 		if (_active_menu != nullptr)
@@ -26,9 +33,14 @@ public:
 		_active_menu = _game_room;
 	}
 
+	void update_room_menu_data();
+	void update_room_menu();
 	void create_new_room();
 
+	void set_geometry_room_menu(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
 	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
+
+	void render_room_menu();
 	void render();
 };
 
@@ -57,25 +69,6 @@ class Friend_list_widget: public jgl::Widget
 {
 private:
 	class Game_engine* _engine;
-
-	struct Friend
-	{
-		jgl::String name;
-		jgl::Vector2 sprite;
-		bool connected;
-
-		int text_size;
-
-		Friend(jgl::String p_name = "", jgl::Vector2 p_sprite = 0, bool p_connected = false)
-		{
-			name = p_name;
-			sprite = p_sprite;
-			connected = p_connected;
-			text_size = -1;
-		}
-	};
-
-	jgl::Sprite_sheet* _friend_box_sheet;
 
 	Friend* find_friend(jgl::String name);
 
@@ -212,7 +205,10 @@ public:
 
 	void close_add_friend_popup();
 	void popup_add_friend_to_list();
-	void menu_contextuel_game() { _contextual_menu->active_game_menu(); }
+	void active_menu_contextuel_room() { _contextual_menu->active_menu_room(); }
+
+	void update_room_menu() { _contextual_menu->update_room_menu(); }
+
 	void parse_friend_list(jgl::Message<Server_message>& msg) { _friend_list_widget->parse_friend_list(msg); }
 	void add_friend_to_list(jgl::Message<Server_message>& msg) { _friend_list_widget->add_friend_to_list(msg); }
 	void remove_friend_from_list(jgl::Message<Server_message>& msg) { _friend_list_widget->remove_friend_from_list(msg); }

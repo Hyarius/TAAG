@@ -124,6 +124,7 @@ void Client::update()
 		break;
 		case Server_message::Friend_list_content:
 		{
+			LOG_MESSAGE("Server send friend list content");
 			_engine->parse_friend_list(msg);
 		}
 		break;
@@ -144,18 +145,27 @@ void Client::update()
 		break;
 		case Server_message::Game_room_information:
 		{
-			int i = 0;
+			Game_room* room = _engine->account()->room;
+
+			if (room == nullptr)
+			{
+				room = new Game_room();
+				_engine->account()->room = room;
+			}
+
+			_engine->account()->room->clean();
 			while (msg.empty() == false)
 			{
-				jgl::String name;
-				jgl::Vector2 sprite;
+				jgl::String pseudo;
+				jgl::Vector2 icon;
 
-				msg >> sprite;
-				name = msg.get_string();
+				msg >> icon;
+				pseudo = msg.get_string();
 
-				std::cout << "Player " << i << " is " << name << " and had sprite : " << sprite << std::endl;
-					i++;
+				_engine->account()->room->add_player_info(pseudo, icon);
+				std::cout << "Adding roommate " << pseudo << " with icon " << icon << std::endl;
 			}
+			_engine->update_room_menu();
 		}
 		break;
 		default:

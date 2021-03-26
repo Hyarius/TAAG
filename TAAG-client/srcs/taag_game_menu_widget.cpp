@@ -5,7 +5,7 @@ void launch_game(jgl::Data param)
 	Game_engine* engine = param.acces<Game_engine*>(0);
 	LOG_MESSAGE("Start a new game");
 
-	engine->menu_contextuel_game();
+	engine->active_menu_contextuel_room();
 	engine->create_new_room();
 }
 

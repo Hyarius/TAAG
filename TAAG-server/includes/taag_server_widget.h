@@ -24,6 +24,7 @@ public:
 
 	void send_room_information(Game_room* room);
 	void send_friend_list(jgl::Connexion<Server_message>* client);
+	void actualize_status(Account* account);
 
 	void connect_account(jgl::Connexion<Server_message>* client, Account* account);
 	void disconnect_account(jgl::Connexion<Server_message>* client, Account* account);

@@ -52,17 +52,57 @@ bool check_password_validity(jgl::String password, jgl::String& error)
 	return (true);
 }
 
-void add_account_to_message(jgl::Message<Server_message>& msg, Account* p_account)
+void add_account_to_message(jgl::Message<Server_message>& msg, Account* account)
 {
-	msg << p_account->icon;
-	msg.add_string(p_account->username);
+	msg << account->icon;
+	msg.add_string(account->password);
+	msg.add_string(account->pseudo);
+	msg.add_string(account->username);
 }
 
 Account* get_account_from_message(jgl::Message<Server_message>& msg)
 {
-	Account* new_account = new Account("", "");
-	new_account->username = msg.get_string();
-	msg >> new_account->icon;
+	jgl::String username;
+	jgl::String pseudo;
+	jgl::String password;
+	jgl::Vector2 icon;
 
-	return (new_account);
+	username = msg.get_string();
+	pseudo = msg.get_string();
+	password = msg.get_string();
+	msg >> icon;
+
+	Account* account = new Account(username, pseudo, password);
+	account->icon = icon;
+
+	return (account);
+}
+
+void add_friend_to_message(jgl::Message<Server_message>& msg, Friend* target)
+{
+	msg << target->state;
+	msg << target->icon;
+	msg.add_string(target->pseudo);
+}
+
+void add_friend_to_message(jgl::Message<Server_message>& msg, Account* target)
+{
+	msg << target->state;
+	msg << target->icon;
+	msg.add_string(target->pseudo);
+}
+
+Friend* get_friend_from_message(jgl::Message<Server_message>& msg)
+{
+	jgl::String name;
+	jgl::Vector2 sprite;
+	Account_state state;
+
+	name = msg.get_string();
+	msg >> sprite;
+	msg >> state;
+
+	Friend* target = new Friend(name, sprite, state);
+
+	return (target);
 }

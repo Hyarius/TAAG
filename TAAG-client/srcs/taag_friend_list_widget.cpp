@@ -26,17 +26,16 @@ Friend_list_widget::Friend_list_widget(class Game_engine* p_engine, jgl::Widget*
 	_friend_text_size = 16;
 	_index = 0;
 
-	_friend_box_sheet = new jgl::Sprite_sheet("ressources/texture/friend_list_background.png", jgl::Vector2(6, 3));
 
 	_add_friend_button = new jgl::Button(popup_add_friend_to_list, _engine, this);
 	_add_friend_button->set_corner_size(16);
 	_add_friend_button->activate();
 	_add_friend_button->set_text("Adding friend");
 
-	for (size_t i = 0; i < _nb_friend_on_screen; i++)
+	for (int i = 0; i < _nb_friend_on_screen; i++)
 	{
 		_friend_box_array.push_back(jgl::w_box_component(this));
-		_friend_box_array[i].set_tileset(_friend_box_sheet);
+		_friend_box_array[i].set_tileset(_engine->account_box_sheet(0));
 		_friend_box_array[i].set_corner_size(16);
 		_friend_text_array.push_back(jgl::w_text_component("", this));
 		_friend_text_array[i].set_horizontal_alignment(jgl::Horizontal_alignment::centred);
@@ -50,36 +49,32 @@ Friend_list_widget::Friend_list_widget(class Game_engine* p_engine, jgl::Widget*
 
 void Friend_list_widget::_set_friend_name_in_box()
 {
-	for (size_t i = 0; i < _nb_friend_on_screen; i++)
+	for (int i = 0; i < _nb_friend_on_screen; i++)
 	{
 		Friend* target = nullptr;
 
-		if (i + _index < _friend_list.size())
+		if (i + _index < static_cast<int>(_friend_list.size()))
 			target = _friend_list[i + _index];
 
-		_friend_text_array[i].set_text(target != nullptr ? target->name : "");
+		_friend_text_array[i].set_text(target != nullptr ? target->pseudo : "");
 		if (_friend_text_array[i].size() > _text_size)
 			_friend_text_array[i].set_size(_text_size);
 
 		_friend_delete_button_array[i]->activate();
-		if (target != nullptr && target->connected == false)
-		{
-			_friend_box_array[i].set_delta(jgl::Color(0, 0, 0, 255));
-		}
-		else
-		{
-			_friend_box_array[i].set_delta(jgl::Color(0, 0, 0, 0));
-			if (target == nullptr)
-				_friend_delete_button_array[i]->desactivate();
-		}
+
+		if (target != nullptr)
+			_friend_box_array[i].set_tileset(_engine->account_box_sheet(static_cast<int>(target->state)));
+
+		if (target == nullptr)
+			_friend_delete_button_array[i]->desactivate();
 	}
 }
 
-Friend_list_widget::Friend* Friend_list_widget::find_friend(jgl::String name)
+Friend* Friend_list_widget::find_friend(jgl::String name)
 {
 	for (size_t i = 0; i < _friend_list.size(); i++)
 	{
-		if (_friend_list[i]->name == name)
+		if (_friend_list[i]->pseudo == name)
 			return (_friend_list[i]);
 	}
 	return (nullptr);
@@ -95,10 +90,10 @@ void Friend_list_widget::set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_
 	_friend_box_size = jgl::Vector2(_box.area().x - _box.border() * 4, ((_box.area().y - _box.border() * 4 - _add_friend_button->area().y - 5) - 5 * (_nb_friend_on_screen - 1)) / _nb_friend_on_screen);
 	_icon_size = jgl::Vector2(_friend_box_size.y, _friend_box_size.y);
 	_delta = (_add_friend_button == nullptr ? 0 : jgl::Vector2(0.0f, _add_friend_button->area().y + 5));
-	_text_size = _friend_box_size.y / 3;
+	_text_size = static_cast<uint32_t>(_friend_box_size.y / 3);
 
 	jgl::Vector2 delete_size = _friend_box_size.y / 3;
-	for (size_t i = 0; i < _nb_friend_on_screen; i++)
+	for (int i = 0; i < _nb_friend_on_screen; i++)
 	{
 		jgl::Vector2 tmp_anchor = p_anchor + jgl::Vector2(5.0f, 5.0f + _add_friend_button->area().y + 5) + jgl::Vector2(0.0f, _friend_box_size.y + 5.0f) * i;
 
@@ -109,18 +104,18 @@ void Friend_list_widget::set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_
 		_friend_text_array[i].set_size(_text_size);
 		_friend_delete_button_array[i]->set_geometry(jgl::Vector2(5.0f, 5.0f + _add_friend_button->area().y + 5) + jgl::Vector2(0.0f, _friend_box_size.y + 5.0f) * i + jgl::Vector2(_friend_box_size.x - delete_size.x, 0.0f), delete_size);
 	}
-	_add_friend_button->set_size(_text_size * 0.8);
+	_add_friend_button->set_size(static_cast<int>(_text_size * 0.8));
 }
 
 void Friend_list_widget::render()
 {
 	_box.render(_viewport);
 
-	for (size_t i = 0; i < _nb_friend_on_screen; i++)
+	for (int i = 0; i < _nb_friend_on_screen; i++)
 	{
 		Friend* target = nullptr;
 
-		if (i + _index < _friend_list.size())
+		if (static_cast<int>(i + _index) < _friend_list.size())
 			target = _friend_list[i + _index];
 
 		if (target != nullptr)
@@ -130,18 +125,17 @@ void Friend_list_widget::render()
 		}
 	}
 
-	for (size_t i = 0; i < _nb_friend_on_screen; i++)
+	for (int i = 0; i < _nb_friend_on_screen; i++)
 	{
-
 		Friend* target = nullptr;
 
-		if (i + _index < _friend_list.size())
+		if (static_cast<int>(i + _index) < _friend_list.size())
 			target = _friend_list[i + _index];
 
 		if (target != nullptr)
 		{
 			jgl::Vector2 tmp_anchor = jgl::Vector2(5.0f, 5.0f + _add_friend_button->area().y + 5) + jgl::Vector2(0.0f, _friend_box_size.y + 5.0f) * i;
-			Account::icon_sprite->draw(_friend_list[i + _index]->sprite, tmp_anchor + _friend_box_array[i].border() * 2, _icon_size - _friend_box_array[i].border() * 4, 1.0f, _viewport);
+			Account::icon_sprite->draw(_friend_list[i + _index]->icon, tmp_anchor + _friend_box_array[i].border() * 2, _icon_size - _friend_box_array[i].border() * 4, 1.0f, _viewport);
 		}
 	}
 }
@@ -156,40 +150,32 @@ void Friend_list_widget::parse_friend_list(jgl::Message<Server_message>& msg)
 
 	while (msg.empty() == false)
 	{
-		jgl::String name;
-		jgl::Vector2 sprite;
-		bool is_connected = false;
-
-		name = msg.get_string();
-		msg >> sprite;
-		msg >> is_connected;
-
-		_friend_list.push_back(new Friend_list_widget::Friend(name, sprite, is_connected));
+		LOG_MESSAGE("Adding one new friend to the list");
+		_friend_list.push_back(get_friend_from_message(msg));
 	}
 	_set_friend_name_in_box();
 }
 
 void Friend_list_widget::change_friend_state(jgl::Message<Server_message>& msg)
 {
-	jgl::String name = msg.get_string();
-	bool new_state;
+	Friend *tmp = get_friend_from_message(msg);
 
-	msg >> new_state;
-
-	Friend* target = find_friend(name);
+	Friend* target = find_friend(tmp->pseudo);
 	if (target != nullptr)
-		target->connected = new_state;
+	{
+		LOG_MESSAGE(tmp->pseudo + "(" + tmp->icon.str() + ")");
+		target->pseudo = tmp->pseudo;
+		target->icon = tmp->icon;
+		target->state = tmp->state;
+	}
 	_set_friend_name_in_box();
+
+	delete tmp;
 }
 
 void Friend_list_widget::add_friend_to_list(jgl::Message<Server_message>& msg)
 {
-	jgl::String name = msg.get_string();
-	jgl::Vector2 sprite;
-
-	msg >> sprite;
-
-	_friend_list.push_back(new Friend_list_widget::Friend(name, sprite, true));
+	_friend_list.push_back(get_friend_from_message(msg));
 	_set_friend_name_in_box();
 }
 
@@ -212,9 +198,9 @@ bool Friend_list_widget::handle_mouse()
 	{
 		if (g_mouse->wheel != 0)
 		{
-			_index -= g_mouse->wheel;
+			_index -= static_cast<int>(g_mouse->wheel);
 
-			int max_size = (_friend_list.size() > _nb_friend_on_screen ? static_cast<int>(_friend_list.size()) - _nb_friend_on_screen : 0);
+			int max_size = (static_cast<int>(_friend_list.size()) > _nb_friend_on_screen ? static_cast<int>(_friend_list.size()) - _nb_friend_on_screen : 0);
 
 			if (_index > max_size)
 				_index = max_size;
@@ -222,6 +208,25 @@ bool Friend_list_widget::handle_mouse()
 				_index = 0;
 
 			_set_friend_name_in_box();
+		}
+		if (jgl::get_button(jgl::mouse_button::left) == jgl::mouse_state::release)
+		{
+			for (int i = 0; i < _nb_friend_on_screen; i++)
+			{
+				if (_friend_box_array[i].is_pointed(g_mouse->pos) == true)
+				{
+					Friend* target = nullptr;
+
+					if (static_cast<int>(i + _index) < _friend_list.size())
+						target = _friend_list[i + _index];
+
+					if (target != nullptr && target->state == Account_state::In_room)
+					{
+						_engine->join_room(target->pseudo);
+					}
+					i = _nb_friend_on_screen;
+				}
+			}
 		}
 	}
 	return (false);
