@@ -80,9 +80,6 @@
     <ClCompile Include="srcs\taag_friend_list_widget.cpp">
       <Filter>Source Files\Widget\game_menu</Filter>
     </ClCompile>
-    <ClCompile Include="srcs\taag_game_launcher_widget.cpp">
-      <Filter>Source Files\Widget\game_menu</Filter>
-    </ClCompile>
     <ClCompile Include="srcs\taag_menu_contextuel_widget.cpp">
       <Filter>Source Files\Widget\game_menu</Filter>
     </ClCompile>

@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-	float ratio = 0.9f;
+	float ratio = 0.4f;
 	jgl::Application app = jgl::Application("TAAG", jgl::Vector2(ratio, ratio));
 	jgl::set_font_path("ressources/font/karma suture.ttf");
 

@@ -16,7 +16,9 @@ private:
 	jgl::Vector2 _friend_text_size;
 	jgl::Array<jgl::w_box_component> _friend_box_array;
 	jgl::Array<jgl::w_text_component> _friend_text_array;
-	
+	jgl::Button* _start_game;
+	jgl::Button* _leave_room;
+	jgl::Button* _stop_matchmaking_button;
 
 	jgl::Contener* _active_menu;
 
@@ -32,6 +34,10 @@ public:
 		_game_room->activate();
 		_active_menu = _game_room;
 	}
+
+	void set_room_leader() { _start_game->activate(); }
+
+	void leave_room();
 
 	void update_room_menu_data();
 	void update_room_menu();
@@ -207,6 +213,7 @@ public:
 	void popup_add_friend_to_list();
 	void active_menu_contextuel_room() { _contextual_menu->active_menu_room(); }
 
+	void leave_room() { _contextual_menu->leave_room(); }
 	void update_room_menu() { _contextual_menu->update_room_menu(); }
 
 	void parse_friend_list(jgl::Message<Server_message>& msg) { _friend_list_widget->parse_friend_list(msg); }
@@ -215,6 +222,8 @@ public:
 	void change_friend_state(jgl::Message<Server_message>& msg) { _friend_list_widget->change_friend_state(msg); }
 
 	void add_chat_line(jgl::String text) { _chat_widget->add_line(text); }
+
+	bool handle_keyboard();
 	void set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area);
 	void render();
 };

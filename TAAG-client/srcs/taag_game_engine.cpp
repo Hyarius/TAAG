@@ -20,6 +20,7 @@ Game_engine::Game_engine()
 	_account_box_sheet[0] = new jgl::Sprite_sheet("ressources/texture/friend_list_background_disconnected.png", jgl::Vector2(6, 3));
 	_account_box_sheet[1] = new jgl::Sprite_sheet("ressources/texture/friend_list_background_connected.png", jgl::Vector2(6, 3));
 	_account_box_sheet[2] = new jgl::Sprite_sheet("ressources/texture/friend_list_background_in_room.png", jgl::Vector2(6, 3));
+	_account_box_sheet[3] = new jgl::Sprite_sheet("ressources/texture/friend_list_background_matchmaking.png", jgl::Vector2(6, 3));
 	_account_box_sheet[3] = new jgl::Sprite_sheet("ressources/texture/friend_list_background_in_game.png", jgl::Vector2(6, 3));
 }
 
@@ -50,10 +51,25 @@ void Game_engine::join_room(jgl::String name)
 	_client->send(msg);
 }
 
+void Game_engine::start_game()
+{
+	LOG_MESSAGE("Asking to start the game");
+	jgl::Message<Server_message> msg(Server_message::Launch_game_request);
+	_client->send(msg);
+}
+
 void Game_engine::leave_room()
 {
 	LOG_MESSAGE("Leaving actual room");
 	jgl::Message<Server_message> msg(Server_message::Leave_room);
+	_client->send(msg);
+	_game_menu->leave_room();
+}
+
+void Game_engine::stop_matchmaking()
+{
+	LOG_MESSAGE("Leaving actual room");
+	jgl::Message<Server_message> msg(Server_message::Stop_matchmaking);
 	_client->send(msg);
 }
 

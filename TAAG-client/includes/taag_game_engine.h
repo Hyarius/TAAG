@@ -16,7 +16,7 @@ private:
 	Title_screen* _title_screen;
 	Game_menu* _game_menu;
 
-	jgl::Sprite_sheet* _account_box_sheet[4];
+	jgl::Sprite_sheet* _account_box_sheet[5];
 
 public:
 	Game_engine();
@@ -34,6 +34,8 @@ public:
 	void create_new_room();
 	void join_room(jgl::String name);
 	void leave_room();
+	void start_game();
+	void stop_matchmaking();
 
 	void close_add_friend_popup() {_game_menu->close_add_friend_popup();}
 	void popup_add_friend_to_list() { _game_menu->popup_add_friend_to_list(); }

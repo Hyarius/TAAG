@@ -7,7 +7,8 @@ enum class Account_state
 	Disconnected = 0,
 	In_lobby = 1,
 	In_room = 2,
-	In_game = 3
+	In_matchmaking = 3,
+	In_game = 4
 };
 
 struct Account_info
@@ -151,11 +152,15 @@ struct Friend : public Account_info
 
 struct Game_room
 {
+	bool in_search;
+	Account_info* leader;
 	Account_info* players[NB_PLAYER_PER_GAME];
 	uint32_t size;
 
 	Game_room()
 	{
+		in_search = false;
+		leader = nullptr;
 		size = 0;
 		for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
 		{
@@ -165,6 +170,7 @@ struct Game_room
 
 	void clean()
 	{
+		in_search = false;
 		size = 0;
 		for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
 		{
@@ -178,12 +184,36 @@ struct Game_room
 
 	bool add_player_info(jgl::String name, jgl::Vector2 icon)
 	{
+		if (in_search == true)
+			return (false);
 		for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
 		{
 			if (players[i] == nullptr)
 			{
 				players[i] = new Account_info(name, icon, Account_state::In_room);
+				if (leader == nullptr)
+					leader = players[i];
 				size++;
+				arrange();
+				return (true);
+			}
+		}
+		return (false);
+	}
+
+	bool add_player_info(Account_info *account)
+	{
+		if (in_search == true)
+			return (false);
+		for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
+		{
+			if (players[i] == nullptr)
+			{
+				players[i] = account;
+				if (leader == nullptr)
+					leader = players[i];
+				size++;
+				arrange();
 				return (true);
 			}
 		}
@@ -192,14 +222,20 @@ struct Game_room
 
 	bool add_player(Account* target)
 	{
+		if (in_search == true)
+			return (false);
+
 		for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
 		{
 			if (players[i] == nullptr)
 			{
 				players[i] = new Account_info(target->pseudo, target->icon, target->state);
+				if (leader == nullptr)
+					leader = players[i];
 				target->room = this;
 				target->state = Account_state::In_room;
 				size++;
+				arrange();
 				return (true);
 			}
 		}
@@ -210,17 +246,53 @@ struct Game_room
 	{
 		for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
 		{
-			if (players[i]->pseudo == target->pseudo)
+			if (players[i] != nullptr && players[i]->pseudo == target->pseudo)
 			{
+				if (leader != nullptr && leader->pseudo == target->pseudo)
+					leader = nullptr;
 				delete players[i];
 				players[i] = nullptr;
 				target->room = nullptr;
 				target->state = Account_state::In_lobby;
 				size--;
+				arrange();
+				if (leader == nullptr)
+					leader = players[0];
+				in_search = false;
 				return (true);
 			}
 		}
 		return (false);
+	}
+
+	void arrange()
+	{
+		Account_info* tmp[NB_PLAYER_PER_GAME];
+		for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
+		{
+			tmp[i] = players[i];
+			players[i] = nullptr;
+		}
+
+		size_t index = 0;
+		for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
+		{
+			if (tmp[i] != nullptr)
+			{
+				players[index] = tmp[i];
+				index++;
+			}
+		}
+	}
+
+	Account_info* find_account(jgl::String name)
+	{
+		for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
+		{
+			if (players[i] != nullptr && players[i]->pseudo == name)
+				return (players[i]);
+		}
+		return (nullptr);
 	}
 };
 

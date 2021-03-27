@@ -26,7 +26,6 @@
     <ClCompile Include="srcs\taag_chat_widget.cpp" />
     <ClCompile Include="srcs\taag_friend_list_widget.cpp" />
     <ClCompile Include="srcs\taag_game_engine.cpp" />
-    <ClCompile Include="srcs\taag_game_launcher_widget.cpp" />
     <ClCompile Include="srcs\taag_game_menu_widget.cpp" />
     <ClCompile Include="srcs\taag_menu_contextuel_widget.cpp" />
     <ClCompile Include="srcs\taag_title_screen_widget.cpp" />

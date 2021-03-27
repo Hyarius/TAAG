@@ -2,6 +2,7 @@
 
 enum class Server_message
 {
+	Server_joker_message = -2,
 	Server_error_message = -1,
 	Server_ask_magic_number = 0,
 	Client_awnser_magic_number = 1,
@@ -22,5 +23,7 @@ enum class Server_message
 	Create_new_room = 16, 
 	Join_room = 17,
 	Leave_room = 18,
-	Game_room_information = 19
+	Game_room_information = 19,
+	Launch_game_request = 20,
+	Stop_matchmaking = 21
 };

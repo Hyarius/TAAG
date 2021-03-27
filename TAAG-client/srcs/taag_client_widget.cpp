@@ -154,6 +154,9 @@ void Client::update()
 			}
 
 			_engine->account()->room->clean();
+			bool in_search;
+			msg >> in_search;
+			jgl::String leader_name = msg.get_string();
 			while (msg.empty() == false)
 			{
 				jgl::String pseudo;
@@ -165,6 +168,8 @@ void Client::update()
 				_engine->account()->room->add_player_info(pseudo, icon);
 				std::cout << "Adding roommate " << pseudo << " with icon " << icon << std::endl;
 			}
+			_engine->account()->room->leader = _engine->account()->room->find_account(leader_name);
+			_engine->account()->room->in_search = in_search;
 			_engine->update_room_menu();
 		}
 		break;

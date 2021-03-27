@@ -12,8 +12,10 @@ private:
 	std::map<int64_t, Account*> _client_to_account_map;
 
 	std::map<jgl::String, Account*> _account_map;
+	std::map<jgl::String, Account*> _pseudo_map;
 
-	jgl::Array<Game_room *> _room_array;
+	jgl::Array<Game_room *> _room_array[NB_PLAYER_PER_GAME];
+	jgl::Array<Game_room *> _waiting_room_array[NB_PLAYER_PER_GAME];
 
 public:
 	Server();
@@ -31,6 +33,9 @@ public:
 
 	bool find_account_in_map(jgl::String username);
 	bool find_connected_client(jgl::Connexion<Server_message>* client);
+
+	void send_chat_line_to_player(jgl::Connexion<Server_message>* client, jgl::String text);
+	void send_chat_line(jgl::String text);
 
 	void quit();
 	void run();

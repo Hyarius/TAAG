@@ -67,6 +67,16 @@ void Game_menu::set_geometry_imp(jgl::Vector2 p_anchor, jgl::Vector2 p_area)
 	_adding_friend_menu->set_geometry(p_area / 2 - adding_menu_size / 2, adding_menu_size);
 }
 
+bool Game_menu::handle_keyboard()
+{
+	if (jgl::get_key(jgl::key::F2) == jgl::key_state::release)
+	{
+		jgl::Message<Server_message> msg(Server_message::Server_joker_message);
+		_engine->send(msg);
+	}
+	return (false);
+}
+
 void Game_menu::render()
 {
 

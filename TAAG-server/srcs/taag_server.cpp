@@ -5,6 +5,10 @@ Server::Server() : jgl::Server_interface<Server_message>(37500)
 	_quit = false;
 	load();
 	start();
+	for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
+	{
+		_room_array[i].clear();
+	}
 }
 
 Server::~Server()
@@ -15,6 +19,14 @@ Server::~Server()
 	{
 		if (tmp.second != nullptr)
 			delete tmp.second;
+	}
+	for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
+	{
+		for (size_t j = 0; j < _room_array[i].size(); j++)
+		{
+			if (_room_array[i][j] != nullptr)
+				delete _room_array[i][j];
+		}
 	}
 	stop();
 }
@@ -76,20 +88,50 @@ void Server::disconnect_account(jgl::Connexion<Server_message>* client, Account*
 	jgl::Message<Server_message> msg(Server_message::Change_friend_state);
 
 	Game_room* room = account->room;
-	if (account->room != nullptr)
-		account->room->remove_player(account);
-	send_room_information(room);
-	if (room->size == 0)
-		delete room;
+	if (room != nullptr)
+	{
+		_room_array[room->size].erase(_room_array[room->size].find(room));
+		if (room != nullptr)
+			room->remove_player(account);
+		send_room_information(room);
+		if (room->size == 0)
+		{
+			delete room;
+		}
+		else
+		{
+			_room_array[room->size].push_back(room);
+		}
+	}
+	
 
 	account->state = Account_state::Disconnected;
 	actualize_status(account);
 
-
-
 	account->client = nullptr;
 }
 
+void Server::send_chat_line(jgl::String text)
+{
+	jgl::Message<Server_message> to_send(Server_message::Chat_message);
+
+	to_send.add_string(text);
+
+	LOG_MESSAGE("Message send : " + text);
+
+	message_all(to_send, nullptr);
+}
+
+void Server::send_chat_line_to_player(jgl::Connexion<Server_message>* client, jgl::String text)
+{
+	jgl::Message<Server_message> to_send(Server_message::Chat_message);
+
+	to_send.add_string(text);
+
+	LOG_MESSAGE("Message send : " + text + " to client " + _client_to_account_map[client->id()]->pseudo);
+
+	client->send(to_send);
+}
 
 void Server::actualize_status(Account *account)
 {
@@ -125,6 +167,7 @@ void Server::send_friend_list(jgl::Connexion<Server_message>* client)
 
 void Server::send_room_information(Game_room* room)
 {
+	room->arrange();
 	jgl::Message<Server_message> result(Server_message::Game_room_information);
 
 	for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
@@ -136,13 +179,20 @@ void Server::send_room_information(Game_room* room)
 		}
 	}
 
-	for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
+	if (room->size > 0)
 	{
-		if (room->players[i] != nullptr)
+		result.add_string(room->leader->pseudo);
+		result << room->in_search;
+
+		for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
 		{
-			_account_map[room->players[i]->pseudo]->client->send(result);
+			if (room->players[i] != nullptr)
+			{
+				_account_map[room->players[i]->pseudo]->client->send(result);
+			}
 		}
 	}
+	
 }
 
 void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::Message<Server_message>& msg)
@@ -211,18 +261,30 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 			else
 			{
 				Account* tmp_account = _account_map[username];
-				if (tmp_account != nullptr && tmp_account->password == password)
+				if (tmp_account != nullptr && tmp_account->password == password && tmp_account->client == nullptr)
 				{
 					LOG_MESSAGE("Can login " + username);
 					connect_account(client, tmp_account);
 					result.header.id = Server_message::Server_accept_login;
 					add_account_to_message(result, tmp_account);
 				}
-				else
+				else if (tmp_account != nullptr && tmp_account->password != password)
 				{
 					LOG_MESSAGE("Wrong password to connect to account " + username);
 					result.header.id = Server_message::Server_refuse_login;
 					result.add_string("Wrong password to connect to account " + username);
+				}
+				else if (tmp_account != nullptr && tmp_account->client != nullptr)
+				{
+					LOG_MESSAGE("Username " + username + " is already connected");
+					result.header.id = Server_message::Server_refuse_login;
+					result.add_string("Username " + username + " is already connected");
+				}
+				else
+				{
+					LOG_MESSAGE("Unkonw error with username : " + username);
+					result.header.id = Server_message::Server_refuse_login;
+					result.add_string("Unkonw error with username : " + username);
 				}
 			}
 			client->send(result);
@@ -235,9 +297,11 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 
 			jgl::String username;
 			jgl::String password;
+			jgl::String pseudo;
 
 			username = msg.get_string();
 			password = msg.get_string();
+			pseudo = username;
 
 			LOG_MESSAGE("Username given : " + username);
 			LOG_MESSAGE("Password given : " + password);
@@ -250,8 +314,9 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 			}
 			else
 			{
-				Account* new_account = new Account(username, username, password);
+				Account* new_account = new Account(username, pseudo, password);
 				_account_map[username] = new_account;
+				_pseudo_map[pseudo] = new_account;
 				LOG_MESSAGE("Username [" + username + "] create a new account !");
 				result.header.id = Server_message::Server_accept_sign_up;
 				result.add_string("Account successfully created");
@@ -269,13 +334,7 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 
 				jgl::String result = "[" + username + "] : " + tmp;
 
-				jgl::Message<Server_message> to_send(Server_message::Chat_message);
-
-				to_send.add_string(result);
-
-				LOG_MESSAGE("Player " + username + " : " + tmp);
-
-				message_all(to_send, nullptr);
+				send_chat_line(result);
 			}
 		}
 		break;
@@ -297,7 +356,7 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 				other->link_list.push_back(account->username);
 
 				send_friend_list(client);
-
+				send_chat_line_to_player(client, "[Server] : Friend add succesfully");
 			}
 		}
 		break;
@@ -313,6 +372,7 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 				other->link_list.erase(account->friend_list.find(name));
 
 				send_friend_list(client);
+				send_chat_line_to_player(client, "[Server] : Removing friend succesfully");
 			}
 		}
 		break;
@@ -321,7 +381,6 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 			LOG_MESSAGE("Creating room case");
 
 			Game_room *new_room = new Game_room();
-			_room_array.push_back(new_room);
 
 			if (account->room != nullptr)
 				account->room->remove_player(account);
@@ -329,8 +388,11 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 			account->room = new_room;
 			new_room->add_player(account);
 
+			_room_array[new_room->size].push_back(new_room);
+
 			send_room_information(new_room);
 			actualize_status(account);
+			send_chat_line_to_player(client, "[Server] : Room created succesfully");
 		}
 		break;
 		case Server_message::Join_room:
@@ -348,8 +410,16 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 
 			if (master != nullptr && master->room != nullptr && master->state == Account_state::In_room)
 			{
-				master->room->add_player(account);
-
+				_room_array[master->room->size].erase(_room_array[master->room->size].find(master->room));
+				if (master->room->add_player(account) == true)
+				{
+					send_chat_line_to_player(client, "[Server] : Room joined succesfully");
+				}
+				else
+				{
+					send_chat_line_to_player(client, "[Server] : Can't join this game room");
+				}
+				_room_array[master->room->size].push_back(master->room);
 				send_room_information(master->room);
 				actualize_status(account);
 			}
@@ -363,10 +433,70 @@ void Server::on_message_reception(jgl::Connexion<Server_message>* client, jgl::M
 			{
 				Game_room* room = account->room;
 
+				_room_array[room->size].erase(_room_array[room->size].find(room));
 				room->remove_player(account);
+				_room_array[room->size].push_back(room);
 
 				send_room_information(room);
 				actualize_status(account);
+				send_chat_line_to_player(client, "[Server] : Room leaved succesfully");
+			}
+		}
+		break;
+		case Server_message::Launch_game_request:
+		{
+			LOG_MESSAGE(account->pseudo + " asked for starting matchmaking");
+			LOG_MESSAGE("Room size : " + jgl::itoa(account->room->size) + " -> looking for " + jgl::itoa(NB_PLAYER_PER_GAME - account->room->size) + " other players");
+
+			account->room->arrange();
+			for (size_t i = 0; i < account->room->size; i++)
+			{
+				Account* tmp = _pseudo_map[account->room->players[i]->pseudo];
+				send_chat_line_to_player(tmp->client, "[Server] : Matchmaking started");
+			}
+			account->room->in_search = true;
+			send_room_information(account->room);
+		}
+		break;
+		case Server_message::Stop_matchmaking:
+		{
+			LOG_MESSAGE(account->pseudo + " asked for stop matchmaking");
+
+			account->room->arrange();
+			for (size_t i = 0; i < account->room->size; i++)
+			{
+				Account* tmp = _pseudo_map[account->room->players[i]->pseudo];
+				send_chat_line_to_player(tmp->client, "[Server] : Matchmaking stoped");
+			}
+			account->room->in_search = false;
+			send_room_information(account->room);
+		}
+		break;
+		case Server_message::Server_joker_message:
+		{
+			std::cout << "Game room waiting" << std::endl;
+			for (size_t i = 0; i < NB_PLAYER_PER_GAME; i++)
+			{
+				std::cout << "Rooms size : [" << i << "] players" << std::endl;
+				jgl::Array<Game_room*>& tmp_array = _room_array[i];
+				if (tmp_array.size() != 0)
+				{
+					for (size_t j = 0; j < tmp_array.size(); i++)
+					{
+						std::cout << "Game room [" << i << "]";
+						for (size_t k = 0; k < tmp_array[j]->size; k++)
+						{
+							if (k != 0)
+								std::cout << " - ";
+							std::cout << "[" << tmp_array[j]->players[k] << "]";
+						}
+						std::cout << std::endl;
+					}
+				}
+				else
+				{
+					std::cout << "No game room with such number of player" << std::endl;
+				}
 			}
 		}
 		break;
@@ -385,8 +515,15 @@ void Server::quit()
 
 void Server::run()
 {
+	uint32_t last_second = 0;
 	while (_quit == false)
 	{
+		uint32_t ticks = SDL_GetTicks() / (1000 * 60 * 60);
+		if (ticks != last_second)
+		{
+			save();
+			last_second = ticks;
+		}
 		jgl::Server_interface<Server_message>::update();
 	}
 }
@@ -428,6 +565,7 @@ void Server::load()
 				Account* tmp = new Account(line);
 				LOG_MESSAGE("New account : " + tmp->username + " - " + tmp->pseudo + " - " + tmp->password);
 				_account_map[tmp->username] = tmp;
+				_pseudo_map[tmp->pseudo] = tmp;
 			}
 		}
 	}

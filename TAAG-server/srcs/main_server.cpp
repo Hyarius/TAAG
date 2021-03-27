@@ -12,6 +12,7 @@ void save_server(int sig)
 
 int main(int argc, char** argv)
 {
+	jgl::start_jgl();
 	serv = new Server();
 	signal(SIGINT, save_server);
 	
